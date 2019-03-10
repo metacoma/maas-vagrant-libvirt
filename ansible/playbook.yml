@@ -1,0 +1,25 @@
+---
+- hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: apt-get update
+      raw: apt-get update
+
+    - name: install python
+      raw: apt install -y python-minimal python-apt
+
+- hosts: all
+  gather_facts: true
+  become: true
+  tasks:
+    - name: add ppa:maas/stable repo
+      apt_repository:
+        repo: ppa:maas/stable
+        update_cache: true
+
+    - name: install maas
+      apt:
+        name: maas
+        force: true
+        install_recommends: false
