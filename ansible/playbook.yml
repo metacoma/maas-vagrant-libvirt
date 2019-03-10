@@ -12,7 +12,38 @@
 - hosts: all
   gather_facts: true
   become: true
+  vars:
+    admin_username: admin
+    admin_password: BMC4y0u
+    admin_email: noc@metacoma.io
+
+    netplan_configuration:
+      network:
+        version: 2
+        ethernets:
+          eth1:
+            addresses: [ "10.10.0.7/24" ]
+          eth2:
+            addresses: [ "192.168.192.7/22" ]
+          eth3:
+            addresses: [ "172.24.172.7/22" ]
+            routes:
+              - to: 0.0.0.0/0
+                via: 172.24.172.1
+            nameservers:
+              addresses:
+                - 172.24.172.1
+          eth4:
+            addresses: [ "10.200.0.7/16" ]
+
+          eth5:
+            addresses: [ "192.168.168.7/22" ]
+  roles:
+    - mrlesmithjr.netplan
   tasks:
+    - name: netplan apply
+      command: netplan apply
+
     - name: add ppa:maas/stable repo
       apt_repository:
         repo: ppa:maas/stable
@@ -23,3 +54,6 @@
         name: maas
         force: true
         install_recommends: false
+
+    - name: maas init
+      command: "maas init --admin-username {{ admin_username }} --admin-password {{ admin_password }} --admin-email {{ admin_email }}"
