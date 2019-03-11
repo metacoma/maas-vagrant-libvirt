@@ -1,0 +1,3 @@
+---
+- name: "Set powertype {{ power_type }} to controller {{ rack_id }}"
+  command: "maas {{ maas_profile }} rack-controller update {{ rack_id }} power_type='{{ power_type }}'"

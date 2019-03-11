@@ -46,6 +46,10 @@
     - include_tasks: tasks/maas/controller_info.yml
       vars:
         controller_id: 0
+    - include_tasks: tasks/maas/controller_power_type.yml
+      vars:
+        rack_id: "{{ controller.system_id }}"
+        power_type: manual
     - include_tasks: tasks/maas/create_ssh_key.yml
       vars:
         ssh_pub_key: "{{ maas_ssh_pub_key }}"
