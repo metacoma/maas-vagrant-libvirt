@@ -1,0 +1,21 @@
+---
+- name: Load machine list
+  command: "maas {{ maas_profile }} machines read"
+  register: maas_data
+
+- name: Parse machine list
+  set_fact:
+    maas_machines: "{{ maas_data.stdout | from_json }}"
+
+- name: Set machines info
+  set_fact:
+    machines_info: '{{ maas_machines | selectattr("boot_interface.mac_address", "equalto", mac_addr) | list }}'
+
+- name: Set machines info
+  set_fact:
+    machine_info: '{{ machines_info[0] }}'
+
+
+- name: Show machine info
+  debug:
+    var: machine_info

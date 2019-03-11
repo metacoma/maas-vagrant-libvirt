@@ -1,0 +1,7 @@
+all:
+  hosts:
+    maas:
+      ansible_host: 172.24.172.7
+      ansible_ssh_user: vagrant
+      ansible_ssh_pass: vagrant
+      ansible_ssh_extra_args: -c aes128-ctr

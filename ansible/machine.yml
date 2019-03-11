@@ -1,0 +1,71 @@
+---
+- hosts: maas
+  become: true
+  become_method: sudo
+  gather_facts: false
+  vars:
+    allow_world_readable_tmpfiles: True
+    pipelining: true
+    maas_profile: MAAS
+    maas_admin_username: admin
+    maas_interface_cidr: 10.10.0.0/24
+    maas_from_ip: 10.10.0.150
+    maas_to_ip: 10.10.0.250
+    vlan:
+      - name: mgmt
+        vid: 101
+        cidr: 192.168.192.0/22
+        reserved_start_ip: 192.168.192.150
+        reserved_end_ip: 192.168.192.255
+      - name: public
+        vid: 102
+        cidr: 172.24.172.0/22
+        reserved_start_ip: 172.24.172.64
+        reserved_end_ip: 172.24.172.128
+        gateway_ip: 172.24.172.1
+      - name: private
+        vid: 103
+        cidr: 10.200.0.0/16
+        reserved_start_ip: 10.200.0.1
+        reserved_end_ip: 10.200.0.64
+      - name: san
+        vid: 104
+        cidr: 192.168.168.0/22
+        reserved_start_ip: 192.168.168.1
+        reserved_end_ip: 192.168.168.64
+  tasks:
+    - debug:
+        msg: "{{ item.vid }}"
+      loop: "{{ vlan }}"
+    - include_tasks: tasks/maas/api-key.yml
+      vars:
+        username: "{{ maas_admin_username }}"
+    - name: show api key
+      debug:
+        var: maas_api_key
+
+    - include_tasks: tasks/maas/login.yml
+    - include_tasks: tasks/maas/machine/info.yml
+      vars:
+        mac_addr: "2c:56:dc:94:ff:77"
+    - include_tasks: tasks/maas/fabric_lookup.yml
+      vars:
+        cidr: '{{ maas_interface_cidr }}'
+
+    - include_tasks: tasks/maas/machine/set_power_type.yml
+      vars:
+        system_id: "{{ machine_info.system_id }}"
+        power_type: manual
+
+    - debug:
+        var: maas_profile
+
+    - include_tasks: tasks/maas/machine/vlan.yml
+      vars:
+        system_id: "{{ machine_info.system_id }}"
+        interface_id: "{{ machine_info.boot_interface.id }}"
+        vlan_id: "{{ item.vid }} "
+        fabric_id: "{{ dhcp_fabric_id }}"
+      loop: "{{ vlan }}"
+#      loop_control:
+#        loop_var: item

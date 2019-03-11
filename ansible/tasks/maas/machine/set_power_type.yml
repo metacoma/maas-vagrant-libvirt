@@ -1,0 +1,3 @@
+---
+- name: "Set powertype to '{{ power_type }}' on machine '{{ system_id }}'"
+  command: "maas {{ maas_profile }} machine update {{ system_id }} power_type='{{ power_type }}'"

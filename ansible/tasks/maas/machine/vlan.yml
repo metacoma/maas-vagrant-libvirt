@@ -1,0 +1,11 @@
+---
+- name: lookup vlan '{{ vlan_id }}'
+  command: "maas {{ maas_profile }} vlan read {{ fabric_id }} {{ vlan_id }}"
+  register: maas_data
+
+- name: parse maas_data
+  set_fact:
+    vlan_data: '{{ maas_data.stdout | from_json }}'
+
+- name: "Assign vlan '{{ vlan_id }}' to '{{ system_id }}' on '{{ interface_id }}'"
+  command: "maas {{ maas_profile }} interfaces create-vlan {{ system_id }} vlan={{ vlan_data.id }} parent={{interface_id}} autoconf=true"
