@@ -1,0 +1,11 @@
+- name: check key exists
+  shell: "maas '{{ maas_profile }}' sshkeys read"
+  register: keys_data
+
+- name: read keys data
+  set_fact:
+    maas_keys_data: "{{ keys_data.stdout | from_json }}"
+
+- name: MAAS create ssh key
+  command: "maas {{ maas_profile }} sshkeys create 'key={{ ssh_pub_key }}'"
+  when: 'maas_keys_data | selectattr("key", "equalto", ssh_pub_key) | list | length == 0'

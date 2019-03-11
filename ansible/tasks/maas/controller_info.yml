@@ -1,0 +1,12 @@
+---
+- name: "Lookup controller {{ controller_id }} info"
+  command: "maas {{ maas_profile }} rack-controllers read"
+  register: maas_data
+
+- name: Parse maad data
+  set_fact:
+    controllers_info: "{{ maas_data.stdout | from_json }}"
+
+- name: "Set fact about controkker {{ controller_id }}"
+  set_fact:
+    controller: "{{ controllers_info[controller_id] }}"

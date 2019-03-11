@@ -1,0 +1,32 @@
+- name: lookup maas api key
+  command: maas-region apikey --username "{{ username }}"
+  register: apikey
+
+- set_fact:
+    maas_api_key: "{{ apikey.stdout }}"
+
+#LOL
+#- name: lookup part1
+#  command: "psql maasdb -A -F, -X -t  -c 'select key from piston3_consumer where id = 2'"
+#  register: api_key_part1
+#  become: yes
+#  become_user: postgres
+#  become_method: sudo
+#
+#- name: lookup part2
+#  command: "psql maasdb -A -F, -X -t  -c 'select key from piston3_token where id = 2'"
+#  register: api_key_part2
+#  become: yes
+#  become_user: postgres
+#  become_method: sudo
+#
+#- name: lookup part3
+#  command: "psql maasdb -A -F, -X -t  -c 'select secret from piston3_token where id = 2'"
+#  register: api_key_part3
+#  become: yes
+#  become_user: postgres
+#  become_method: sudo
+#
+#- name: set api-key fact
+#  set_fact:
+#    maas_api_key: "{{ api_key_part1.stdout }}:{{ api_key_part2.stdout }}:{{ api_key_part3.stdout }}"

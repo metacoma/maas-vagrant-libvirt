@@ -1,0 +1,43 @@
+---
+- hosts: maas
+  become: true
+  become_method: sudo
+  gather_facts: false
+  vars:
+    allow_world_readable_tmpfiles: True
+    pipelining: true
+    maas_profile: MAAS
+    maas_admin_username: admin
+    maas_ssh_pub_key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC7RarepURVmQDB8lIeiBVbSQiVsfreWcZ5GwmnBSTCHYlHcn/DOCVVeuyV0febkAJYCCRRm77sBcj0+Bf5fJwegFlv5jE7xQqoyNeQklYbcYj7eRfzBQvWbh2JR5JE4AbOByVIkpP3LLQAAMwdblgPe1DaCqLOMMvXL80kIeLubPnROjUxszhTR9opO2EdD9oLZt2XmtYQlEtqdh1n+w3EwrMNZCw2ouTy723/mAkfLvcRQiN3iiUYm1ECqv5Ql651s0mBC8L9NEZCTnhZawBZRaeoVfi7Q6sgiUYIa0qkXktufOm7wiDMQUSQqpAcfMhuo5ulzJazOKZ4yNLQ2ibR"
+    maas_interface_cidr: 10.10.0.0/24
+    maas_from_ip: 10.10.0.150
+    maas_to_ip: 10.10.0.250
+  tasks:
+    - include_tasks: tasks/maas/api-key.yml
+      vars:
+        username: "{{ maas_admin_username }}"
+    - name: show api key
+      debug:
+        var: maas_api_key
+
+    - include_tasks: tasks/maas/login.yml
+    - include_tasks: tasks/maas/controller_info.yml
+      vars:
+        controller_id: 0
+    - include_tasks: tasks/maas/create_ssh_key.yml
+      vars:
+        ssh_pub_key: "{{ maas_ssh_pub_key }}"
+    - include_tasks: tasks/maas/fabric_lookup.yml
+      vars:
+        cidr: '{{ maas_interface_cidr }}'
+    - include_tasks: tasks/maas/iprange_create.yml
+      vars:
+        iprange_type: dynamic
+        from_ip: '{{ maas_from_ip }}'
+        to_ip: '{{ maas_to_ip }}'
+        iprange_comment: 'dhcp range'
+    - include_tasks: tasks/maas/enable_dhcp.yml
+      vars:
+        fabric_id: '{{ dhcp_fabric }}'
+        vlan_id: 0
+        controller_name: "{{ controller.system_id }}"

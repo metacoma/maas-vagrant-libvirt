@@ -1,0 +1,13 @@
+- name: "Lookup fabric for cidr {{ cidr }}"
+  command: "maas '{{ maas_profile }}' subnet read {{ cidr }}"
+  register: maas_result
+
+- name: set fabric fact for '{{ cidr }}'
+  set_fact:
+    fabric_data: '{{ maas_result.stdout | from_json }}'
+
+- name: set fabric fact for '{{ cidr }}'
+  set_fact:
+    dhcp_fabric: "{{ fabric_data.vlan.fabric }}"
+    dhcp_fabric_id: "{{ fabric_data.vlan.fabric_id }}"
+

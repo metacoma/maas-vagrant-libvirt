@@ -1,0 +1,2 @@
+- name: MAAS login
+  command: "maas login {{ maas_profile }} http://localhost:5240/MAAS/api/2.0/ {{maas_api_key }}"

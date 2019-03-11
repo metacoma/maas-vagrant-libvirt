@@ -1,0 +1,11 @@
+- name: Load vlan info
+  command: "maas {{ maas_profile }} vlan read {{ fabric_id }} {{ vlan_id }}"
+  register: maas_data
+
+- name: Parse maad_data
+  set_fact:
+    vlan_info: "{{ maas_data.stdout | from_json }}"
+
+- name: "Enable dhcp on fabric: '{{ fabric_id }}' vlan: '{{ vlan_id }}'"
+  command: "maas '{{ maas_profile }}' vlan update '{{ fabric_id }}' '{{ vlan_id }}' dhcp_on=True primary_rack={{ controller_name }}"
+  when: vlan_info.dhcp_on == False

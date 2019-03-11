@@ -13,9 +13,9 @@
   gather_facts: true
   become: true
   vars:
-    admin_username: admin
-    admin_password: BMC4y0u
-    admin_email: noc@metacoma.io
+    maas_admin_username: admin
+    maas_admin_password: BMC4y0u
+    maas_admin_email: noc@metacoma.io
 
     netplan_configuration:
       network:
@@ -56,4 +56,6 @@
         install_recommends: false
 
     - name: maas init
-      command: "maas init --admin-username {{ admin_username }} --admin-password {{ admin_password }} --admin-email {{ admin_email }}"
+      command: "maas init --admin-username {{ maas_admin_username }} --admin-password {{ maas_admin_password }} --admin-email {{ maas_admin_email }}"
+
+
