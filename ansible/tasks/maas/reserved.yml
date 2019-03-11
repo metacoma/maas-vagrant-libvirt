@@ -1,0 +1,16 @@
+---
+- name: lookup subnet data
+  command: "maas {{ maas_profile }} subnet read {{ cidr }}"
+  register: maas_data
+
+- name: parse subnet data
+  set_fact:
+    subnet_data: "{{ maas_data.stdout | from_json }}"
+
+- include_tasks: tasks/maas/iprange_create.yml
+  vars:
+    iprange_type: reserved
+    from_ip: '{{ reserved_start_ip }}'
+    to_ip: '{{ reserved_end_ip }}'
+    iprange_comment: '{{ cidr }} reserved'
+

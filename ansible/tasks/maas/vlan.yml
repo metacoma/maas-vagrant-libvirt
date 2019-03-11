@@ -8,6 +8,33 @@
       #command: "maas {{ maas_profile }} vlan update {{ fabric_id }} {{ vlan_id }} name='{{ vlan_name }}' description='vlan {{ vlan_name }}'"
       command: "maas {{ maas_profile }} vlans create {{ fabric_id }} vid='{{ vlan_id }}' name='{{ vlan_name }}' description='vlan {{ vlan_name }}'"
 
+- name: load subnet data
+  command: "maas {{ maas_profile }} subnets read"
+  register: maas_data
+
+- name: parse subnet data
+  set_fact:
+    subnet_data: "{{ maas_data.stdout | from_json }}"
+
+- name: "lookup {{ cidr }} subnet"
+  set_fact:
+    cidr_data: '{{ subnet_data | selectattr("cidr", "equalto", cidr) | list  }}'
+
+- name: 'output {{ cidr }} data'
+  debug:
+    var: cidr_data
+
+- name: load vlan data
+  command: "maas {{ maas_profile }} vlan read {{ fabric_id }} {{ vlan_id }} "
+  register: maas_data
+
+- name: parse vlan_data
+  set_fact:
+    vlan_data: "{{ maas_data.stdout | from_json }}"
+
+- name: "assign {{ cidr }} to {{ fabric_id }} vlan {{ vlan_id }}"
+  command: "maas {{ maas_profile }} subnet update {{ cidr_data[0].id }} vid='{{ vlan_id }}' vlan={{ vlan_data.id }} fabric='{{ fabric_id }}' {% if gateway_ip != '' %}gateway_ip='{{ gateway_ip }}'{% endif %}"
+
 #- name: Parse vlan_data
 #  set_fact:
 #    vlan_data: "{{ maas_data.stdout | from_json }}"

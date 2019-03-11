@@ -8,7 +8,7 @@
     maas_ipranges: "{{ maas_data.stdout | from_json }}"
 
 - name: "Create iprange from: '{{ from_ip }}' to: '{{ to_ip }}', type: '{{ iprange_type }}', comment: '{{ iprange_comment }}'"
-  command: "maas '{{ maas_profile }}' ipranges create type='{{ iprange_type }}' start_ip='{{ from_ip }}' end_ip='{{ to_ip }}' comment='{{ iprange_comment }}'"
+  command: "maas '{{ maas_profile }}' ipranges create type='{{ iprange_type }}' start_ip='{{ from_ip }}' end_ip='{{ to_ip }}' comment='{{ iprange_comment }}' {% if subnet_id is defined and subnet_id != '' %}subnet={{ subnet_id }}{% endif %}"
   when:
     - 'maas_ipranges | selectattr("start_ip", "equalto", from_ip) | list | length == 0'
     - 'maas_ipranges | selectattr("end_ip", "equalto", to_ip) | list | length == 0'
